@@ -69,6 +69,30 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
     }
 
     /**
+     * Applies iteratively the given function to each element in the collection,
+     * so as to reduce the collection to a single value.
+     *
+     * @psalm-param Closure(TReturn|TInitial, T):TReturn $func
+     * @psalm-param TInitial $initial
+     *
+     * @return mixed
+     * @psalm-return TReturn|TInitial
+     *
+     * @psalm-template TReturn
+     * @psalm-template TInitial
+     */
+    public function reduce(Closure $func, mixed $initial = null)
+    {
+        $this->initialize();
+
+        $result = $initial;
+        foreach ($this->entities as $key => $element) {
+            $result = $func($result, $key, $element);
+        }
+        return $result;
+    }
+
+    /**
      * Sets the internal iterator to the last element in the collection and
      * returns this element.
      *
