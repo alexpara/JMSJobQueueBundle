@@ -56,6 +56,18 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
         return reset($this->entities);
     }
 
+    public function findFirst(Closure $p)
+    {
+        $this->initialize();
+
+        foreach ($this->entities as $key => $element) {
+            if ($p($key, $element)) {
+                return $element;
+            }
+        }
+        return null;
+    }
+
     /**
      * Sets the internal iterator to the last element in the collection and
      * returns this element.
@@ -513,7 +525,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
             return;
         }
 
-        $con = $this->registry->getManagerForClass(Job::class)->getConnection();
+        $con = $this->registry->getManagerForClass('JMSJobQueueBundle:Job')->getConnection();
         $entitiesPerClass = array();
         $count = 0;
         foreach ($con->query("SELECT related_class, related_id FROM jms_job_related_entities WHERE job_id = ".$this->job->getId()) as $data) {
